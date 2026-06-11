@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="SpeakGrid" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>SpeakGrid AAC</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <h1>SpeakGrid AAC</h1>
+      <p>Custom icon buttons that speak aloud</p>
+    </div>
+    <button id="editToggle" class="primary-btn" type="button" aria-pressed="false">Edit board</button>
+  </header>
+
+  <main>
+    <section id="boardSettings" class="toolbar" aria-label="Board controls" hidden>
+      <label>
+        Columns
+        <select id="columnsSelect"></select>
+      </label>
+      <label>
+        Rows
+        <select id="rowsSelect"></select>
+      </label>
+      <label>
+        Selection
+        <select id="selectionMode">
+          <option value="touch">Speak on first touch</option>
+          <option value="release">Speak on release</option>
+        </select>
+      </label>
+      <label>
+        Voice speed
+        <input id="rateInput" type="range" min="0.6" max="1.2" step="0.05" value="0.9" />
+      </label>
+      <button id="resetBoard" class="secondary-btn" type="button">Reset sample board</button>
+    </section>
+
+    <section class="sentence-bar" aria-label="Message bar">
+      <div id="messageText" class="message-text" aria-live="polite"></div>
+      <button id="speakMessage" class="secondary-btn" type="button">Speak message</button>
+      <button id="clearMessage" class="secondary-btn" type="button">Clear</button>
+    </section>
+
+    <section id="grid" class="grid" aria-label="Communication buttons"></section>
+  </main>
+
+  <dialog id="editorDialog" aria-labelledby="editorTitle">
+    <form method="dialog" class="editor-form">
+      <div class="dialog-header">
+        <h2 id="editorTitle">Edit button</h2>
+        <button id="closeEditor" class="icon-btn" type="button" aria-label="Close editor">×</button>
+      </div>
+
+      <input type="hidden" id="editingIndex" />
+
+      <label>
+        Display label
+        <input id="labelInput" type="text" placeholder="Example: Drink" />
+      </label>
+
+      <label>
+        Spoken text
+        <textarea id="spokenInput" rows="3" placeholder="Example: I want a drink"></textarea>
+      </label>
+
+      <fieldset>
+        <legend>Button image</legend>
+        <div class="image-preview-wrap">
+          <div id="imagePreview" class="image-preview" aria-hidden="true"></div>
+          <button id="clearImage" class="secondary-btn" type="button">Clear image</button>
+        </div>
+
+        <label>
+          Symbol / emoji
+          <input id="symbolInput" type="text" maxlength="4" placeholder="Example: 💧" />
+        </label>
+
+        <div class="symbol-library" aria-label="Symbol choices">
+          <button type="button">😊</button><button type="button">👍</button><button type="button">👎</button><button type="button">💧</button>
+          <button type="button">🍎</button><button type="button">🍽️</button><button type="button">🚽</button><button type="button">🏠</button>
+          <button type="button">🚗</button><button type="button">🛏️</button><button type="button">🧸</button><button type="button">📚</button>
+          <button type="button">❤️</button><button type="button">😢</button><button type="button">😡</button><button type="button">🤒</button>
+        </div>
+
+        <label>
+          Upload photo from device
+          <input id="fileInput" type="file" accept="image/*" />
+        </label>
+
+        <label>
+          Image URL from internet
+          <input id="urlInput" type="url" placeholder="https://example.com/image.png" />
+        </label>
+        <p class="hint">For internet icons, paste a direct image URL. Some sites block image embedding; uploaded photos are most reliable.</p>
+      </fieldset>
+
+      <label>
+        Background color
+        <input id="colorInput" type="color" value="#f4f6ff" />
+      </label>
+
+      <menu class="dialog-actions">
+        <button id="deleteButton" class="danger-btn" type="button">Clear button</button>
+        <button id="cancelEditor" class="secondary-btn" type="button">Cancel</button>
+        <button id="saveButton" class="primary-btn" type="button">Save</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
