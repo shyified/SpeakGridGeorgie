@@ -17,10 +17,25 @@
       <h1>SpeakGrid AAC</h1>
       <p>Custom icon buttons that speak aloud</p>
     </div>
-    <button id="editToggle" class="primary-btn" type="button" aria-pressed="false">Edit board</button>
+    <div class="header-actions">
+      <button id="editToggle" class="primary-btn" type="button" aria-pressed="false">Edit board</button>
+    </div>
   </header>
 
   <main>
+    <section class="page-nav" aria-label="Board page navigation">
+      <div>
+        <strong id="currentPageName">Home</strong>
+        <span id="boardPath">Home</span>
+      </div>
+      <div class="page-actions">
+        <button id="backPage" class="secondary-btn" type="button">Back</button>
+        <button id="homePage" class="secondary-btn" type="button">Home</button>
+        <button id="renamePage" class="secondary-btn" type="button" hidden>Rename folder</button>
+        <button id="deletePage" class="danger-btn" type="button" hidden>Delete folder</button>
+      </div>
+    </section>
+
     <section id="boardSettings" class="toolbar" aria-label="Board controls" hidden>
       <label>
         Columns
@@ -41,6 +56,11 @@
         Voice speed
         <input id="rateInput" type="range" min="0.6" max="1.2" step="0.05" value="0.9" />
       </label>
+      <label class="checkbox-label">
+        <input id="messageToggle" type="checkbox" />
+        Show message window
+      </label>
+      <button id="profileButton" class="secondary-btn" type="button">Profiles</button>
       <button id="resetBoard" class="secondary-btn" type="button">Reset sample board</button>
     </section>
 
@@ -51,6 +71,8 @@
     </section>
 
     <section id="grid" class="grid" aria-label="Communication buttons"></section>
+
+    <section id="gridPager" class="grid-pager" aria-label="Grid page navigation"></section>
   </main>
 
   <dialog id="editorDialog" aria-labelledby="editorTitle">
@@ -68,9 +90,31 @@
       </label>
 
       <label>
+        Button action
+        <select id="buttonAction">
+          <option value="speak">Speak aloud</option>
+          <option value="folder">Open folder/page</option>
+          <option value="speakFolder">Speak aloud + open folder/page</option>
+        </select>
+      </label>
+
+      <label>
         Spoken text
         <textarea id="spokenInput" rows="3" placeholder="Example: I want a drink"></textarea>
       </label>
+
+      <fieldset id="folderOptions" hidden>
+        <legend>Folder/page options</legend>
+        <label>
+          Link to existing folder/page
+          <select id="folderSelect"></select>
+        </label>
+        <label>
+          Or create a new folder/page
+          <input id="newFolderName" type="text" placeholder="Example: Food, Feelings, Places" />
+        </label>
+        <p class="hint">Folder buttons can open another board page, or speak first and then open the folder/page. Each folder/page has its own buttons.</p>
+      </fieldset>
 
       <fieldset>
         <legend>Button image</legend>
@@ -108,6 +152,22 @@
         <input id="colorInput" type="color" value="#f4f6ff" />
       </label>
 
+      <fieldset id="placementOptions">
+        <legend>Move / swap placement</legend>
+        <div class="placement-grid">
+          <label>
+            Move to grid page
+            <select id="movePageSelect"></select>
+          </label>
+          <label>
+            Move to button spot
+            <select id="moveSlotSelect"></select>
+          </label>
+        </div>
+        <button id="moveSwapButton" class="secondary-btn" type="button">Swap with selected spot</button>
+        <p class="hint">When a smaller grid creates multiple pages, this lets you swap this button with any spot on any numbered grid page.</p>
+      </fieldset>
+
       <menu class="dialog-actions">
         <button id="deleteButton" class="danger-btn" type="button">Clear button</button>
         <button id="cancelEditor" class="secondary-btn" type="button">Cancel</button>
@@ -116,6 +176,66 @@
     </form>
   </dialog>
 
-  <script src="app.js"></script>
+
+  <dialog id="profileDialog" aria-labelledby="profileTitle">
+    <form method="dialog" class="editor-form">
+      <div class="dialog-header">
+        <h2 id="profileTitle">Profiles</h2>
+        <button id="closeProfiles" class="icon-btn" type="button" aria-label="Close profiles">×</button>
+      </div>
+
+      <section class="profile-panel" aria-label="Create profile">
+        <h3>Create new profile</h3>
+        <label>
+          Profile name
+          <input id="newProfileName" type="text" placeholder="Example: Sam" autocomplete="off" />
+        </label>
+        <label>
+          Optional 6-digit passcode
+          <input id="newProfilePasscode" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="Leave blank for no lock" autocomplete="new-password" />
+        </label>
+        <button id="createProfile" class="primary-btn" type="button">Create profile</button>
+      </section>
+
+      <section class="profile-panel" aria-label="Profile list">
+        <h3>Switch profile</h3>
+        <div id="profileList" class="profile-list"></div>
+      </section>
+
+      <section class="profile-panel" aria-label="Current profile security">
+        <h3>Current profile options</h3>
+        <label>
+          Set or change 6-digit passcode
+          <input id="currentProfilePasscode" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6 digits, or leave blank to remove" autocomplete="new-password" />
+        </label>
+        <div class="profile-actions">
+          <button id="savePasscode" class="secondary-btn" type="button">Save passcode</button>
+          <button id="duplicateProfile" class="secondary-btn" type="button">Duplicate current profile</button>
+          <button id="deleteProfile" class="danger-btn" type="button">Delete current profile</button>
+        </div>
+        <p class="hint">Passcodes are stored locally on this device/browser. They prevent casual profile switching, but they are not medical-grade or cloud account security.</p>
+      </section>
+    </form>
+  </dialog>
+
+  <dialog id="unlockDialog" aria-labelledby="unlockTitle">
+    <form method="dialog" class="editor-form small-dialog">
+      <div class="dialog-header">
+        <h2 id="unlockTitle">Unlock profile</h2>
+        <button id="cancelUnlock" class="icon-btn" type="button" aria-label="Cancel unlock">×</button>
+      </div>
+      <p id="unlockProfileName" class="hint"></p>
+      <label>
+        6-digit passcode
+        <input id="unlockPasscode" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="current-password" />
+      </label>
+      <p id="unlockError" class="error-text" role="alert"></p>
+      <menu class="dialog-actions">
+        <button id="unlockProfile" class="primary-btn" type="button">Unlock</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <script src="app.js?v=20260611-action-fix"></script>
 </body>
 </html>
